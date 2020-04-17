@@ -10,3 +10,78 @@ knitr::opts_chunk$set(echo = TRUE)
 ```
 
 
+```{r}
+#Attach packages
+library(tidyverse)
+library(ggplot2)
+library(dplyr)
+library(janitor)
+
+```
+
+
+```{r}
+#Read in hw2 data file
+hw2_data <- read_csv("hw2_data.csv") %>% 
+  clean_names() %>% 
+  pivot_longer(c(mc_a, mc_b, mc_c, mc_d), names_to = "mc", )
+
+```
+
+```{r}
+#Sector A plot
+
+sa_data <- hw2_data %>% 
+  select(abatement, mc_a)
+
+sa_plot <- ggplot(sa_data, aes(x = abatement, y = mc_a)) +
+  geom_point() +
+  labs(x = "Abatement (tons of Carbon)",
+       y = "Marginal Cost ($/ton)",
+       title = "Sector A: Marginal Cost of Carbon Abatement")
+
+sa_plot
+```
+
+```{r}
+mc_plot <- ggplot(hw2_data, aes(x = abatement, y = value)) +
+  geom_point(aes(color = mc)) +
+  labs(x = "Abatement (tons of Carbon)",
+       y = "Marginal Cost ($/ton)",
+       title = "Sectors A-D: Marginal Cost of Carbon Abatement")
+
+mc_plot
+```
+
+```{r}
+best_fit_mc_a <- lm(mc ~ abatement, value = filter(hw2_data, mc == "mc_a"))
+best_fit_mc_b <- lm(mc ~ abatement, value = filter(hw2_data, mc == "mc_b"))
+best_fit_mc_c <- lm(mc ~ abatement, value = filter(hw2_data, mc == "mc_c"))
+best_fit_mc_d <- lm(mc ~ abatement, value = filter(hw2_data, mc == "mc_d"))
+
+
+
+toluene_order_plot <- ggplot(toluene_order, aes(x=time, y=ln_toluene_mol_l)) +
+  geom_point(aes(color = treatment_desc)) +
+  geom_abline(color = "#440154FF",intercept=coef(best_fit_c)[1],slope=coef(best_fit_c)[2]) +
+  geom_abline(color = "#39568CFF",intercept=coef(best_fit_h2o)[1],slope=coef(best_fit_h2o)[2]) +
+  geom_abline(color = "#1F968BFF",intercept=coef(best_fit_p)[1],slope=coef(best_fit_p)[2]) +
+  geom_abline(color = "#73D055FF",intercept=coef(best_fit_s1)[1],slope=coef(best_fit_s1)[2]) +
+  geom_abline(color = "#FDE725FF",intercept=coef(best_fit_s2)[1],slope=coef(best_fit_s2)[2]) +
+  scale_color_manual(values = c("#440154FF", "#39568CFF", "#1F968BFF", "#73D055FF", "#FDE725FF"), name = "Toluene Treatments") +
+  theme_gray() +
+  theme(
+    legend.position="right",
+    plot.title = element_text(size=14)
+  ) +
+  theme(
+    plot.title=element_text( hjust=0.5, vjust=0.5, face='bold'),
+    plot.subtitle = element_text(hjust=0.5, vjust=0.5, face='italic')
+  ) +
+  labs(x = "Time (min)",
+       y = "Toluene (ln(mol/L)",
+       title = "Natural Log of Toluene Biodegradation",
+       subtitle = "Comparison of Treatments Over Time")
+
+```
+
